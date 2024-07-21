@@ -25,13 +25,14 @@ def calculate_total_distance(gpx_file_path):
 
                 distance = geodesic(coords_1, coords_2).meters
                 total_distance += distance
-                speed = calculate_average_speed(distance, (time2-time1).total_seconds())
+                deltaSeconds = int((time2-time1).total_seconds())
+                deltaTime = f"{deltaSeconds//3600}:{deltaSeconds % 3600 // 60:02}:{deltaSeconds%60:02}"
+                speed = calculate_average_speed(distance, deltaSeconds)
 
-                print(f"distance: {distance}, speed: {speed}")
+                print(f"distance: {int(distance)}m, speed: {speed:02.2}kmH, time: {deltaTime}")
 
                 if start_time is None:
                     start_time = point1.time
-                
 
                 end_time = point2.time
 
