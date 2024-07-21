@@ -2,6 +2,19 @@ import gpxpy
 import gpxpy.gpx
 from geopy.distance import geodesic
 
+from datetime import datetime
+import pytz
+
+local_timezone_str = 'Europe/Amsterdam'    # Target local timezone
+
+def convert_gmt_to_local(gmt_datetime, local_timezone_str):
+
+    local_timezone = pytz.timezone(local_timezone_str)
+    local_datetime = gmt_datetime.astimezone(local_timezone)
+    
+    return local_datetime
+
+
 def calculate_total_distance(gpx_file_path):
     # Parse the GPX file
     with open(gpx_file_path, 'r') as gpx_file:
@@ -9,6 +22,7 @@ def calculate_total_distance(gpx_file_path):
 
     total_distance = 0.0
     start_time = None
+    points = ""
 
     # Iterate through track points and calculate distances
     for track in gpx.tracks:
@@ -28,8 +42,10 @@ def calculate_total_distance(gpx_file_path):
                 deltaSeconds = int((time2-time1).total_seconds())
                 deltaTime = f"{deltaSeconds//3600}:{deltaSeconds % 3600 // 60:02}:{deltaSeconds%60:02}"
                 speed = calculate_average_speed(distance, deltaSeconds)
+                local_datetime = convert_gmt_to_local(time2, local_timezone_str)
 
-                print(f"distance: {int(distance)}m, speed: {speed:02.2}kmH, time: {deltaTime}")
+                points += f"distance: {int(distance):3}m, speed: {speed:.2f}kmH, Dtime: {deltaTime} time:{local_datetime.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                #print(f"distance: {int(distance):3}m, speed: {speed:.2f}kmH, time: {deltaTime}")
 
                 if start_time is None:
                     start_time = point1.time
@@ -40,9 +56,7 @@ def calculate_total_distance(gpx_file_path):
     # Calculate total time in seconds
     total_time = (end_time - start_time).total_seconds() if start_time and end_time else 0
 
-    return total_distance, total_time
-
-
+    return total_distance, total_time, points
 
 def calculate_average_speed(total_distance, total_time):
     # Convert total distance to kilometers and total time to hours
@@ -51,12 +65,13 @@ def calculate_average_speed(total_distance, total_time):
     average_speed = total_distance_km / total_time_hours if total_time_hours > 0 else 0
     return average_speed
 
-
-# Example usage
-gpx_file_path = 'osm-upload7453061963705800278.gpx'
-total_distance, total_time = calculate_total_distance(gpx_file_path)
-average_speed = calculate_average_speed(total_distance, total_time)
-print(f"Total distance: {total_distance} meters")
-print(f"Average speed: {average_speed} km/h")
+if __name__ == '__main__':
+    # Example usage
+    gpx_file_path = 'osm-upload7453061963705800278.gpx'
+    total_distance, total_time, points = calculate_total_distance(gpx_file_path)
+    average_speed = calculate_average_speed(total_distance, total_time)
+    print (points)
+    print(f"Total distance: {total_distance} meters")
+    print(f"Average speed: {average_speed} km/h")
 
 
