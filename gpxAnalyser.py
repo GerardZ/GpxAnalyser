@@ -44,8 +44,8 @@ def calculate_total_distance(gpx_file_path):
                 speed = calculate_average_speed(distance, deltaSeconds)
                 local_datetime = convert_gmt_to_local(time2, local_timezone_str)
 
-                points += f"distance: {int(distance):3}m, speed: {speed:.2f}kmH, Dtime: {deltaTime} time:{local_datetime.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                #print(f"distance: {int(distance):3}m, speed: {speed:.2f}kmH, time: {deltaTime}")
+                points += f"distance: {int(distance):3}m, speed: {speed:5.1f}kmH, Dtime: {deltaTime} time:{local_datetime.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                #print(f"distance: {int(distance):3}m, speed: {speed:3.1f}kmH, time: {deltaTime}")
 
                 if start_time is None:
                     start_time = point1.time

@@ -1,7 +1,8 @@
 import sys
 import math
+from PyQt5.QtCore import QSize, Qt
 #from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
-from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QTextEdit,
+from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QTextEdit,QHBoxLayout,
                              QPushButton, QVBoxLayout, QMessageBox, QFileDialog)
 from PyQt5.QtGui import QFont
 import gpxAnalyser
@@ -29,9 +30,11 @@ class DistanceCalculator(QWidget):
             self.gpxFile_input.setText(file_name)
             total_distance, total_time, points = gpxAnalyser.calculate_total_distance(file_name)
             self.text_edit.setText(points)
+            self.distance_result.setText(str(total_distance))
 
     def initUI(self):
         self.setWindowTitle('Distance Calculator')
+        self.setFixedSize(QSize(1000, 300))
 
         layout = QVBoxLayout()
 
@@ -44,8 +47,7 @@ class DistanceCalculator(QWidget):
         self.file_button.clicked.connect(self.open_file_dialog)
         layout.addWidget(self.file_button)
 
-
-                # Create a QTextEdit widget
+        # Create a QTextEdit widget
         self.text_edit = QTextEdit(self)
         self.text_edit.setLineWrapMode(QTextEdit.NoWrap)  # Disable line wrap
         # Set the preferred height to 10 lines
@@ -63,8 +65,12 @@ class DistanceCalculator(QWidget):
         self.calculate_button.clicked.connect(self.calculate_distance)
         layout.addWidget(self.calculate_button)
 
-        self.result_label = QLabel('Distance: ')
-        layout.addWidget(self.result_label)
+        h_layout1 = QHBoxLayout()
+        self.distance_label = QLabel('Distance: ')
+        h_layout1.addWidget(self.distance_label)
+        self.distance_result = QLabel('0')
+        h_layout1.addWidget(self.distance_result)
+        layout.addLayout(h_layout1)
 
         self.setLayout(layout)
 
