@@ -16,11 +16,35 @@ def parse_gpx(file_path):
                     coordinates.append((point.latitude, point.longitude))
     return coordinates
 
+
+def getCenterCoordinate(coordinates):
+    # this will not account for going over 180 degree or 90 degree...
+    latMin = 10000
+    latMax = 0
+    longMin = 10000
+    longMax = 0
+    
+    for (lat, long) in coordinates:
+        if latMin > lat: latMin = lat
+        if latMax < lat: latMax = lat
+        if longMin > long: longMin = long
+        if longMax < long: longMax = long
+
+    latCenter = latMin + (latMax - latMin)/2
+    longCenter = longMin + (longMax - longMin)/2
+
+    return (latCenter, longCenter)
+
+
+
 # Function to create a Folium map with the GPX track
 def create_map(coordinates):
     if coordinates:
         start_coords = coordinates[0]
-        folium_map = folium.Map(location=start_coords, zoom_start=14, tiles='OpenStreetMap')
+
+        #folium_map = folium.Map(location=start_coords, zoom_start=14, tiles='OpenStreetMap')
+        folium_map = folium.Map(location=getCenterCoordinate(coordinates), zoom_start=14, tiles='OpenStreetMap')
+
         folium.PolyLine(coordinates, color="blue", weight=2.5, opacity=1).add_to(folium_map)
         return folium_map
     else:
