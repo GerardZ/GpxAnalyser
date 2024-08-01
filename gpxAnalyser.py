@@ -49,12 +49,14 @@ def getCenterCoordinate(coordinates):
 
 def calculate_total_distance(gpx_file_path):
     # Parse the GPX file
-    with open(gpx_file_path, 'r') as gpx_file:
+    with open(gpx_file_path, 'r', encoding='utf-8') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
 
     total_distance = 0.0
     start_time = None
     points = ""
+
+    default_time = datetime(1980, 1, 1)
 
     # Iterate through track points and calculate distances
     for track in gpx.tracks:
@@ -66,8 +68,12 @@ def calculate_total_distance(gpx_file_path):
                 coords_1 = (point1.latitude, point1.longitude)
                 coords_2 = (point2.latitude, point2.longitude)
 
-                time1 = point1.time
-                time2 = point2.time
+                time1 = getattr(point1, 'time', default_time)
+                time2 = getattr(point2, 'time', default_time)
+
+                if time1 == None: time1 = default_time
+                if time2 == None: time2 = default_time
+
 
                 distance = geodesic(coords_1, coords_2).meters
                 total_distance += distance
@@ -106,11 +112,13 @@ def calculate_average_speed(total_distance, total_time):
 if __name__ == '__main__':
     # Example usage
     gpx_file_path = 'osm-upload7453061963705800278.gpx'
+    gpx_file_path = 'C:\\Users\\gradtje\\Downloads\\gasselte-drouwenerzand-drouwen-6km.gpx'
     total_distance, total_time, points = calculate_total_distance(gpx_file_path)
     average_speed = calculate_average_speed(total_distance, total_time)
     print (points)
     print(f"Total distance: {total_distance/1000:2.2} Km")
-    print(f"Average speed: {average_speed:5.2} km/h")
+    if total_time > 0:
+        print(f"Average speed: {average_speed:5.2} km/h")
     hours, minutes, seconds = convert_seconds(total_time)
     print(f"over: {hours} hours, {minutes} minutes and {seconds} seconds")
 

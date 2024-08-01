@@ -11,7 +11,7 @@ import gpxAnalyser
 import sys
 
 def parse_gpx(file_path):
-    with open(file_path, 'r') as gpx_file:
+    with open(gpx_file_path, 'r', encoding='utf-8') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
         coordinates = []
         for track in gpx.tracks:
@@ -43,7 +43,7 @@ class MainWindow(QWidget):
 
         self.initUI()
 
-    def save_to_png(self):
+    def render_to_image(self):
         # Define the size of the image
         size = self.web_view.size()
         image = QImage(size, QImage.Format_ARGB32)
@@ -53,14 +53,37 @@ class MainWindow(QWidget):
         painter = QPainter(image)
 
         # Render the web content to the image
-        #self.web_view.render(painter)
+        self.web_view.render(painter)
 
         # End painting
         painter.end()
 
-        # Save the image as PNG
-        image.save("c:\\temp\\map.png", "PNG")
-        print("Saved webpage to webpage.png")
+        return image
+
+    def save_to_png(self):
+        # Define the size of the image
+        size = self.web_view.size()
+        image = self.render_to_image()
+        """
+        image = QImage(size, QImage.Format_ARGB32)
+        image.fill(Qt.white)  # Optional: Fill with white background
+
+        painter = QPainter(image)        # Create a QPainter to render the web content to the image
+        self.web_view.render(painter)    # Render the web content to the image
+        painter.end()                    # Endpainting
+        """
+
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save as PNG File", "", "PNG Files (*.png);;All Files (*)", options=options)
+        if fileName:
+            image.save(fileName, "PNG")  # Save the image as PNG
+
+    def copy_to_clipboard(self):
+        image = self.render_to_image()
+        # Get the clipboard object
+        clipboard = QApplication.clipboard()
+        # Copy the image to the clipboard
+        clipboard.setImage(image)
 
     def open_file_dialog(self):
         options = QFileDialog.Options()
@@ -104,6 +127,9 @@ class MainWindow(QWidget):
         self.saveMap_button.clicked.connect(self.save_to_png)
         layout.addWidget(self.saveMap_button)
 
+        self.copyClipboard_button = QPushButton('copy to clipboard')
+        self.copyClipboard_button.clicked.connect(self.copy_to_clipboard)
+        layout.addWidget(self.copyClipboard_button)
 
         # Create a QTextEdit widget
         self.text_edit = QTextEdit(self)
@@ -148,6 +174,16 @@ class MainWindow(QWidget):
             QMessageBox.critical(self, "Input Error", "Please enter valid numbers for all coordinates.")
 
 if __name__ == '__main__':
+
+    gpx_file_path = 'C:\\Users\\gradtje\\Downloads\\gasselte-drouwenerzand-drouwen-6km.gpx'
+    try:
+        with open(gpx_file_path, 'r', encoding='utf-8') as gpx_file:
+            gpx = gpxpy.parse(gpx_file)
+    except gpxpy.gpx.GPXXMLSyntaxException as e:
+        print(f"Error parsing GPX file: {e}")
+    #exit()
+
+
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
     #mainWindow.show()
