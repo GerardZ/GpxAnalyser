@@ -10,8 +10,8 @@ from PyQt5.QtGui import QFont, QImage, QPainter
 import gpxAnalyser
 import sys
 
-def parse_gpx(file_path):
-    with open(gpx_file_path, 'r', encoding='utf-8') as gpx_file:
+def parse_gpx(gpxFileName):
+    with open(gpxFileName, 'r', encoding='utf-8') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
         coordinates = []
         for track in gpx.tracks:
@@ -174,15 +174,6 @@ class MainWindow(QWidget):
             QMessageBox.critical(self, "Input Error", "Please enter valid numbers for all coordinates.")
 
 if __name__ == '__main__':
-
-    gpx_file_path = 'C:\\Users\\gradtje\\Downloads\\gasselte-drouwenerzand-drouwen-6km.gpx'
-    try:
-        with open(gpx_file_path, 'r', encoding='utf-8') as gpx_file:
-            gpx = gpxpy.parse(gpx_file)
-    except gpxpy.gpx.GPXXMLSyntaxException as e:
-        print(f"Error parsing GPX file: {e}")
-    #exit()
-
 
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
