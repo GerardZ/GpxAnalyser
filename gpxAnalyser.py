@@ -14,6 +14,38 @@ def convert_gmt_to_local(gmt_datetime, local_timezone_str):
     
     return local_datetime
 
+def parse_gpx(file_path):
+    with open(file_path, 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+        coordinates = []
+        for track in gpx.tracks:
+            for segment in track.segments:
+                for point in segment.points:
+                    coordinates.append((point.latitude, point.longitude))
+    return coordinates
+
+
+def getCenterCoordinate(coordinates):
+    
+    latMin = 90
+    latMax = 0
+    longMin = 360
+    longMax = 0
+    
+    for (lat, long) in coordinates:
+        long = (long + 360) % 360
+        if latMin > lat: latMin = lat
+        if latMax < lat: latMax = lat
+        if longMin > long: longMin = long
+        if longMax < long: longMax = long
+
+    latCenter = latMin + (latMax - latMin)/2
+    longCenter = longMin + (longMax - longMin)/2
+
+    if longCenter > 180: longCenter -= 360
+
+    return (latCenter, longCenter)
+
 
 def calculate_total_distance(gpx_file_path):
     # Parse the GPX file
@@ -58,6 +90,12 @@ def calculate_total_distance(gpx_file_path):
 
     return total_distance, total_time, points
 
+def convert_seconds(seconds):
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    remaining_seconds = seconds % 60
+    return int(hours), int(minutes), int(remaining_seconds)
+
 def calculate_average_speed(total_distance, total_time):
     # Convert total distance to kilometers and total time to hours
     total_distance_km = total_distance / 1000
@@ -71,7 +109,9 @@ if __name__ == '__main__':
     total_distance, total_time, points = calculate_total_distance(gpx_file_path)
     average_speed = calculate_average_speed(total_distance, total_time)
     print (points)
-    print(f"Total distance: {total_distance} meters")
-    print(f"Average speed: {average_speed} km/h")
+    print(f"Total distance: {total_distance/1000:2.2} Km")
+    print(f"Average speed: {average_speed:5.2} km/h")
+    hours, minutes, seconds = convert_seconds(total_time)
+    print(f"over: {hours} hours, {minutes} minutes and {seconds} seconds")
 
 
